@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B6A86">
+<meta name="description" content="Exercices interactifs AU3 : de l'équation différentielle du premier ordre à F(p) = K/(1+τp).">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Premier ordre">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Atelier premier ordre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;1,400&display=swap">
+<style>
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --ink:#17212B; --muted:#586676; --line:#D6DDE4;
+  --accent:#0B6A86; --accent-soft:#E1EFF3; --on-accent:#FFFFFF;
+  --ok:#2A7849; --ok-soft:#E2F1E7; --ko:#AE412E; --ko-soft:#F8E5E1;
+  --warn:#94660F; --warn-soft:#F6EDD6; --grid:#E4E9ED;
+  --sans:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --cond:"IBM Plex Sans Condensed", "Arial Narrow", "IBM Plex Sans", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --math:"STIX Two Text", "Cambria Math", "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F151B; --surface:#172029; --ink:#E1E7ED; --muted:#93A1AF; --line:#2B3743;
+    --accent:#5AB7D4; --accent-soft:#14303A; --on-accent:#0B1A20;
+    --ok:#62C48E; --ok-soft:#15301F; --ko:#E9876F; --ko-soft:#3A1E18;
+    --warn:#E0B15C; --warn-soft:#33290F; --grid:#23303B;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F151B; --surface:#172029; --ink:#E1E7ED; --muted:#93A1AF; --line:#2B3743;
+  --accent:#5AB7D4; --accent-soft:#14303A; --on-accent:#0B1A20;
+  --ok:#62C48E; --ok-soft:#15301F; --ko:#E9876F; --ko-soft:#3A1E18;
+  --warn:#E0B15C; --warn-soft:#33290F; --grid:#23303B;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--cond);font-weight:600;font-size:clamp(28px,5vw,38px);line-height:1.1;margin:0;text-wrap:balance}
+h1 .m{font-family:var(--math);font-weight:400;color:var(--accent)}
+.lead{margin:0;color:var(--muted);max-width:62ch}
+.m{font-family:var(--math);font-size:1.08em}
+.m i{font-style:italic}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em;line-height:1.2}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .25em .05em}
+.frac>span:last-child{padding:.05em .25em 0}
+
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:13px;min-width:38px;height:30px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:6px;color:var(--muted);text-decoration:none;background:var(--surface)}
+.chip.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.chip.seen{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.score{font-family:var(--mono);font-size:13px;color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
+
+details.method{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details.method summary{cursor:pointer;padding:12px 16px;font-weight:600}
+.method-body{padding:0 16px 14px;display:flex;flex-direction:column;gap:8px}
+.method-body ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.notation{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--muted)}
+
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px;scroll-margin-top:70px}
+.ex-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:1px 7px}
+.ex h2{font-family:var(--cond);font-weight:600;font-size:21px;margin:0}
+.state{margin-left:auto;font-size:13px;font-family:var(--mono)}
+.state.done{color:var(--ok)} .state.seen{color:var(--warn)}
+.ex p{margin:0}
+.eq{font-family:var(--math);font-size:21px;padding:10px 14px;background:var(--accent-soft);border-radius:6px;overflow-x:auto;white-space:nowrap}
+.q{font-weight:500}
+.fields{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center}
+.field{display:flex;align-items:center;gap:8px}
+.field label{font-family:var(--math);font-size:20px;font-style:italic;white-space:nowrap}
+.field label.plain{font-family:var(--sans);font-size:15px;font-style:normal}
+.field input,.field select{font:500 16px var(--mono);color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:6px;padding:7px 10px}
+.field input{width:110px}
+.field input.ok,.field select.ok{border-color:var(--ok);background:var(--ok-soft)}
+.field input.ko,.field select.ko{border-color:var(--ko);background:var(--ko-soft)}
+.unit{font-size:14px;color:var(--muted);font-family:var(--mono)}
+.fill-eq{font-family:var(--math);font-size:21px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.fill-eq input{font:500 16px var(--mono);width:84px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:6px;padding:6px 8px}
+.fill-eq input.ok{border-color:var(--ok);background:var(--ok-soft)}
+.fill-eq input.ko{border-color:var(--ko);background:var(--ko-soft)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+button{font:500 14px var(--sans);border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+button:hover{filter:brightness(1.05)}
+button:disabled{opacity:.5;cursor:default}
+.feedback{padding:10px 14px;border-radius:6px;font-size:15px}
+.feedback.ok{background:var(--ok-soft);color:var(--ink);border-left:3px solid var(--ok)}
+.feedback.ko{background:var(--ko-soft);color:var(--ink);border-left:3px solid var(--ko)}
+.hints{display:flex;flex-direction:column;gap:6px}
+.hint{font-size:15px;padding:8px 12px;border:1px dashed var(--line);border-radius:6px;color:var(--ink)}
+.hint b{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500;margin-right:6px}
+.solution{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px}
+.solution h3{margin:0;font-size:14px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.step{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:baseline}
+.step .k{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:78px}
+.step .v{font-family:var(--math);font-size:19px;overflow-x:auto}
+.note{font-size:15px;color:var(--muted)}
+.plotbox{display:flex;flex-direction:column;gap:6px}
+.plotbox svg{width:100%;height:auto;max-width:100%}
+.plotbox .cap{font-size:14px;color:var(--muted)}
+.circuit{max-width:320px;color:var(--ink)}
+.data{display:flex;flex-wrap:wrap;gap:6px 22px;font-family:var(--mono);font-size:14px}
+.chip.locked{opacity:.45;cursor:not-allowed;border-style:dashed}
+.part{display:flex;flex-direction:column;gap:4px;padding-top:10px}
+.part h2{font-family:var(--cond);font-weight:600;font-size:24px;margin:0}
+.part p{margin:0;color:var(--muted);max-width:62ch}
+.graph{display:flex;flex-direction:column;gap:6px}
+.graph svg{width:100%;height:auto;max-width:100%;touch-action:pan-y;cursor:crosshair;background:var(--bg);border-radius:6px}
+.readout{font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.4em}
+.readout b{color:var(--ink);font-weight:500}
+.next-lock{font-size:14px;color:var(--muted);border:1px dashed var(--line);border-radius:8px;padding:12px 16px;text-align:center}
+.finish{background:var(--ok-soft);border:1px solid var(--ok);border-radius:10px;padding:18px 20px}
+.finish h2{font-family:var(--cond);margin:0 0 4px;font-size:21px}
+.reset{align-self:flex-start;font-size:13px;color:var(--muted)}
+footer{font-size:13px;color:var(--muted)}
+@media (max-width:480px){ .ex{padding:16px} .eq,.fill-eq{font-size:18px} .score{margin-left:0} }
+@media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">AU3 · BUT GEII 2 · Objectif 1</div>
+    <h1>De l'équation différentielle à <span class="m"><i>F</i>(<i>p</i>)</span></h1>
+    <p class="lead">Pour chaque exercice, transforme l'équation en fonction de transfert, mets-la sous la forme standard, puis saisis <span class="m"><i>K</i></span> et <span class="m"><i>τ</i></span>. Chaque exercice se débloque quand le précédent est juste. Les indices et la correction sont disponibles si tu bloques, mais il faut toujours saisir la bonne réponse pour avancer.</p>
+  </header>
+
+  <details class="method">
+    <summary>Rappel de la méthode</summary>
+    <div class="method-body">
+      <ol>
+        <li>Passer en Laplace avec <span class="m"><i>y</i>(0) = 0</span> : <span class="m"><i>ẏ</i>(<i>t</i>) → <i>p</i> <i>Y</i>(<i>p</i>)</span> et <span class="m"><i>u</i>(<i>t</i>) → <i>U</i>(<i>p</i>)</span>.</li>
+        <li>Factoriser <span class="m"><i>Y</i>(<i>p</i>)</span> et isoler <span class="m"><i>F</i>(<i>p</i>) = <span class="frac"><span><i>Y</i>(<i>p</i>)</span><span><i>U</i>(<i>p</i>)</span></span></span>.</li>
+        <li>Diviser numérateur et dénominateur par le terme constant du dénominateur pour obtenir <span class="m"><i>F</i>(<i>p</i>) = <span class="frac"><span><i>K</i></span><span>1 + <i>τ</i><i>p</i></span></span></span>.</li>
+      </ol>
+      <div class="notation"><span><span class="m"><i>u</i></span> : commande</span><span><span class="m"><i>y</i></span> : sortie</span><span><span class="m"><i>K</i></span> : gain statique</span><span><span class="m"><i>τ</i></span> : constante de temps (s)</span></div>
+    </div>
+  </details>
+
+  <div class="bar">
+    <nav class="chips" id="chips" aria-label="Exercices"></nav>
+    <span class="score" id="score"></span>
+  </div>
+
+  <main id="list" class="wrap" style="gap:18px"></main>
+
+  <button class="reset" id="reset" type="button">Recommencer tous les exercices</button>
+  <footer>Saisie : virgule ou point décimal, fractions acceptées (ex. 1/2). Tolérance de 1 % pour les calculs, de 5 % pour les lectures graphiques.</footer>
+</div>
+
+<script>
+const fr = (n,d)=>`<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const I = s=>`<i>${s}</i>`;
+const Yp = `${I('Y')}(${I('p')})`, Up = `${I('U')}(${I('p')})`, Fp = `${I('F')}(${I('p')})`, p = I('p');
+const yd = `${I('ẏ')}(${I('t')})`, yt = `${I('y')}(${I('t')})`, ut = `${I('u')}(${I('t')})`;
+
+const circuitSVG = `<svg class="circuit" viewBox="0 0 300 130" role="img" aria-label="Circuit RC : résistance R en série, condensateur C en sortie">
+<g fill="none" stroke="currentColor" stroke-width="1.6">
+<path d="M40 30 H110 M170 30 H240 V60 M240 72 V110 H40"/>
+<rect x="110" y="20" width="60" height="20" rx="2"/>
+<path d="M222 60 H258 M222 72 H258" stroke-width="2.4"/>
+<path d="M20 105 V38" /><path d="M275 105 V38"/>
+</g>
+<g fill="currentColor"><path d="M20 32 l-4 8 h8z"/><path d="M275 32 l-4 8 h8z"/>
+<circle cx="40" cy="30" r="2.5"/><circle cx="40" cy="110" r="2.5"/>
+<text x="140" y="14" font-size="14" font-style="italic" font-family="STIX Two Text, serif" text-anchor="middle">R</text>
+<text x="210" y="70" font-size="14" font-style="italic" font-family="STIX Two Text, serif" text-anchor="end">C</text>
+<text x="8" y="76" font-size="15" font-style="italic" font-family="STIX Two Text, serif">u</text>
+<text x="283" y="76" font-size="15" font-style="italic" font-family="STIX Two Text, serif">y</text>
+<text x="75" y="48" font-size="13" font-style="italic" font-family="STIX Two Text, serif">i →</text></g></svg>`;
+
+const EX = [
+{ id:'ex1', n:'1', title:'Forme déjà standard', part:{title:'Partie 1 · De l\'équation à F(p)', intro:"Transformer une équation différentielle du premier ordre en fonction de transfert standard."},
+  body:`<p>On considère l'équation différentielle :</p><div class="eq">5 ${yd} + ${yt} = 2 ${ut}</div><p class="q">Détermine ${Fp} et identifie le gain statique et la constante de temps.</p>`,
+  fields:[{key:'K',label:'K =',ans:2},{key:'tau',label:'τ =',unit:'s',ans:5}],
+  mistakes:[{when:{tau:0.2},msg:"τ n'est pas l'inverse du coefficient de ẏ : dans la forme standard, τ multiplie p."},
+            {when:{K:0.5},msg:"K se lit au numérateur de la forme standard, il ne s'agit pas d'un rapport inverse."}],
+  hints:["En Laplace, 5ẏ(t) devient 5p·Y(p).","On obtient Y(p)(1 + 5p) = 2U(p). Le dénominateur commence déjà par 1."],
+  sol:[['Laplace',`5${p}${Yp} + ${Yp} = 2${Up}`],['Factoriser',`${Yp}(1 + 5${p}) = 2${Up}`],['Standard',`${Fp} = ${fr('2','1 + 5'+p)}`],['Résultat',`${I('K')} = 2, ${I('τ')} = 5 s`]],
+  plot:{K:2,tau:5}},
+{ id:'ex2', n:'2', title:'Le coefficient de y n\'est pas 1',
+  body:`<div class="eq">3 ${yd} + 6 ${yt} = 12 ${ut}</div><p class="q">Mets ${Fp} sous la forme ${fr(I('K'),'1 + '+I('τ')+p)} et donne ${I('K')} et ${I('τ')}.</p>`,
+  fields:[{key:'K',label:'K =',ans:2},{key:'tau',label:'τ =',unit:'s',ans:0.5}],
+  mistakes:[{when:{K:12},msg:"Tu as lu le numérateur sans normaliser. Le dénominateur doit commencer par 1 : divise tout par 6."},
+            {when:{tau:3},msg:"Le dénominateur vaut 6 + 3p. Il faut d'abord diviser par 6 pour faire apparaître le 1."},
+            {when:{K:4},msg:"Tu as divisé par 3 (coefficient de ẏ). C'est par le coefficient de y (6) qu'il faut diviser."},
+            {when:{tau:2},msg:"τ = 3/6, pas 6/3."}],
+  hints:["Laplace : 3p·Y(p) + 6·Y(p) = 12·U(p), donc F(p) = 12 / (6 + 3p).","Divise numérateur et dénominateur par 6."],
+  sol:[['Laplace',`3${p}${Yp} + 6${Yp} = 12${Up}`],['Isoler',`${Fp} = ${fr('12','6 + 3'+p)}`],['÷ 6',`${Fp} = ${fr('2','1 + 0,5'+p)}`],['Résultat',`${I('K')} = 2, ${I('τ')} = 0,5 s`]],
+  note:"On ne peut pas lire τ = 3 directement : τ ne se lit que lorsque le terme constant du dénominateur vaut 1.",
+  plot:{K:2,tau:0.5}},
+{ id:'ex3', n:'3', title:'Cas général',
+  body:`<div class="eq">${I('a')} ${yd} + ${I('b')} ${yt} = ${I('c')} ${ut} &nbsp;&nbsp; avec ${I('a')}, ${I('b')}, ${I('c')} &gt; 0</div><p class="q">Choisis l'expression de ${I('K')} et de ${I('τ')} en fonction de ${I('a')}, ${I('b')}, ${I('c')}.</p>`,
+  fields:[{key:'K',label:'K =',type:'select',opts:['—','c/b','c/a','b/c','c'],ans:'c/b'},
+          {key:'tau',label:'τ =',type:'select',opts:['—','a/b','b/a','a','a/c'],ans:'a/b'}],
+  mistakes:[{when:{K:'c'},msg:"c n'est le gain que si b = 1. Pense à la normalisation."},
+            {when:{tau:'a'},msg:"a n'est la constante de temps que si b = 1. Pense à la normalisation."},
+            {when:{tau:'b/a'},msg:"Inversé : on divise par b, donc τ = a/b."},
+            {when:{K:'c/a'},msg:"On ne divise pas par le coefficient de ẏ mais par celui de y."}],
+  hints:["F(p) = c / (b + a·p).","Divise tout par b, le terme constant du dénominateur."],
+  sol:[['Laplace',`${I('a')}${p}${Yp} + ${I('b')}${Yp} = ${I('c')}${Up}`],['Isoler',`${Fp} = ${fr(I('c'),I('b')+' + '+I('a')+p)}`],['÷ '+'b',`${Fp} = ${fr(I('c')+'/'+I('b'),'1 + ('+I('a')+'/'+I('b')+')'+p)}`],['Vérif.',`Ex. 1 : ${I('a')}=5, ${I('b')}=1, ${I('c')}=2 · Ex. 2 : ${I('a')}=3, ${I('b')}=6, ${I('c')}=12`]],
+  note:"Formule à retenir : K = c/b et τ = a/b. Elle se vérifie sur les exercices 1 et 2."},
+{ id:'ex4', n:'4', title:'Équation « mal rangée »',
+  body:`<div class="eq">${yd} = −2 ${yt} + 4 ${ut}</div><p class="q">Range les termes en ${I('y')} à gauche, puis donne ${I('K')} et ${I('τ')}.</p>`,
+  fields:[{key:'K',label:'K =',ans:2},{key:'tau',label:'τ =',unit:'s',ans:0.5}],
+  mistakes:[{when:{tau:-0.5},msg:"Erreur de signe : en passant −2y à gauche, il devient +2y."},
+            {when:{K:-2},msg:"Erreur de signe : en passant −2y à gauche, il devient +2y."},
+            {when:{K:4},msg:"F(p) = 4/(p + 2) : le terme constant du dénominateur vaut 2, il faut diviser par 2."},
+            {when:{tau:2},msg:"τ = 1/2, pas 2/1."}],
+  hints:["Réécris : ẏ(t) + 2y(t) = 4u(t).","F(p) = 4 / (p + 2), puis divise par 2."],
+  sol:[['Ranger',`${yd} + 2${yt} = 4${ut}`],['Laplace',`${p}${Yp} + 2${Yp} = 4${Up}`],['Isoler',`${Fp} = ${fr('4',p+' + 2')} = ${fr('2','1 + 0,5'+p)}`],['Résultat',`${I('K')} = 2, ${I('τ')} = 0,5 s`]],
+  plot:{K:2,tau:0.5}},
+{ id:'ex5', n:'5', title:'Circuit RC',
+  body:`<p>On reprend le circuit RC du TD, avec ${I('u')} = ${I('v')}<sub>i</sub> et ${I('y')} = ${I('v')}<sub>o</sub>.</p>${circuitSVG}<div class="data"><span>R = 10 kΩ</span><span>C = 100 µF</span></div><p class="q">Avec la loi des mailles et ${I('i')} = ${I('C')} ${I('ẏ')}, établis ${Fp}, puis calcule ${I('K')} et ${I('τ')}.</p>`,
+  fields:[{key:'K',label:'K =',ans:1},{key:'tau',label:'τ =',unit:'s',ans:1}],
+  mistakes:[{when:{tau:1000},msg:"Attention aux unités : R = 10·10³ Ω et C = 100·10⁻⁶ F."},
+            {when:{tau:0.001},msg:"Attention aux unités : R = 10·10³ Ω et C = 100·10⁻⁶ F."},
+            {when:{tau:1e6},msg:"Attention aux unités : C = 100 µF = 100·10⁻⁶ F."},
+            {when:{tau:0.1},msg:"Vérifie la puissance de 10 : 10·10³ × 100·10⁻⁶ = ?"},
+            {when:{tau:10},msg:"Vérifie la puissance de 10 : 10·10³ × 100·10⁻⁶ = ?"}],
+  hints:["Loi des mailles : u(t) = R·i(t) + y(t), avec i(t) = C·ẏ(t).","On obtient RC·ẏ(t) + y(t) = u(t) : forme déjà standard."],
+  sol:[['Mailles',`${ut} = ${I('R')}${I('i')}(${I('t')}) + ${yt}`],['Équation',`${I('RC')} ${yd} + ${yt} = ${ut}`],['Transfert',`${Fp} = ${fr('1','1 + '+I('RC')+p)}`],['A.N.',`${I('K')} = 1, ${I('τ')} = 10·10³ × 100·10⁻⁶ = 1 s`]],
+  plot:{K:1,tau:1}},
+{ id:'ex6', n:'6', title:'Moteur à courant continu',
+  body:`<p>La vitesse ${I('y')} = ${I('ω')} d'un moteur commandé en courant ${I('u')} = ${I('i')} vérifie :</p><div class="eq">${I('J')} ${yd} + ${I('f')} ${yt} = ${I('k')}<sub>m</sub> ${ut}</div><div class="data"><span>J = 0,01 kg·m²</span><span>f = 0,1 N·m·s/rad</span><span>k<sub>m</sub> = 0,5 N·m/A</span></div><p class="q">Donne ${I('K')} et ${I('τ')}. Vérifie ensuite que ${I('τ')} est homogène à un temps.</p>`,
+  fields:[{key:'K',label:'K =',unit:'rad·s⁻¹/A',ans:5},{key:'tau',label:'τ =',unit:'s',ans:0.1}],
+  mistakes:[{when:{tau:10},msg:"Inversé : τ = J/f, pas f/J."},
+            {when:{K:0.2},msg:"Inversé : K = kₘ/f, pas f/kₘ."},
+            {when:{tau:0.01},msg:"Le dénominateur doit être normalisé : divise J par f."},
+            {when:{K:0.5},msg:"Le numérateur doit être normalisé : divise kₘ par f."},
+            {when:{K:50},msg:"On divise par f (coefficient de y), pas par J."}],
+  hints:["Même structure que l'exercice 3 avec a = J, b = f, c = kₘ.","K = kₘ/f et τ = J/f."],
+  sol:[['Transfert',`${Fp} = ${fr(I('k')+'<sub>m</sub>',I('f')+' + '+I('J')+p)} = ${fr(I('k')+'<sub>m</sub>/'+I('f'),'1 + ('+I('J')+'/'+I('f')+')'+p)}`],['A.N.',`${I('K')} = 0,5 / 0,1 = 5 rad·s⁻¹·A⁻¹, ${I('τ')} = 0,01 / 0,1 = 0,1 s`],['Unités',`[${I('J')}/${I('f')}] = kg·m² / (kg·m²·s⁻²·s) = s`]],
+  plot:{K:5,tau:0.1}},
+{ id:'ex7a', n:'7a', title:'Exercice inverse',
+  body:`<p>On donne la fonction de transfert :</p><div class="eq">${Fp} = ${fr('4','1 + 0,2'+p)}</div><p class="q">Complète l'équation différentielle correspondante.</p>`,
+  fill:true,
+  fields:[{key:'a',ans:0.2},{key:'c',ans:4}],
+  mistakes:[{when:{a:5},msg:"Le coefficient de ẏ est τ lui-même, pas 1/τ."},
+            {when:{c:0.25},msg:"Le coefficient de u est K lui-même."}],
+  hints:["Écris Y(p)(1 + 0,2p) = 4U(p), puis développe.","Y(p) + 0,2p·Y(p) = 4U(p) ; p·Y(p) redevient ẏ(t)."],
+  sol:[['Produit en croix',`${Yp}(1 + 0,2${p}) = 4${Up}`],['Développer',`${Yp} + 0,2${p}${Yp} = 4${Up}`],['Temporel',`0,2 ${yd} + ${yt} = 4 ${ut}`]],
+  plot:{K:4,tau:0.2}},
+{ id:'ex7b', n:'7b', title:'Le piège',
+  body:`<div class="eq">2 ${yd} − 4 ${yt} = ${ut}</div><p class="q">Mets ${Fp} sous forme standard, donne ${I('K')} et ${I('τ')}, puis indique comment évolue la réponse à un échelon.</p>`,
+  fields:[{key:'K',label:'K =',ans:-0.25},{key:'tau',label:'τ =',unit:'s',ans:-0.5},
+          {key:'beh',label:'Réponse :',plain:true,type:'select',opts:['—','converge vers K','diverge'],ans:'diverge'}],
+  mistakes:[{when:{tau:0.5},msg:"Attention au signe : on divise par −4, pas par 4."},
+            {when:{K:0.25},msg:"Attention au signe : on divise par −4, pas par 4."},
+            {when:{K:1},msg:"F(p) = 1/(2p − 4) n'est pas normalisée : divise par −4."},
+            {when:{beh:'converge vers K'},msg:"Regarde le pôle : 2p − 4 = 0 donne p = +2. Un pôle positif donne une exponentielle croissante."}],
+  hints:["F(p) = 1 / (2p − 4). Le terme constant du dénominateur vaut −4.","Diviser par −4 donne F(p) = −0,25 / (1 − 0,5p). Le pôle est p = +2."],
+  sol:[['Laplace',`2${p}${Yp} − 4${Yp} = ${Up}`],['Isoler',`${Fp} = ${fr('1','2'+p+' − 4')}`],['÷ (−4)',`${Fp} = ${fr('−0,25','1 − 0,5'+p)}`],['Résultat',`${I('K')} = −0,25, ${I('τ')} = −0,5 s`]],
+  note:"Le pôle p = +2 est positif : la réponse contient e^(2t) et diverge. Le système est instable. Une « constante de temps » négative n'a pas de sens physique. Ce point sera repris avec la notion de stabilité.",
+  plot:{K:-0.25,tau:-0.5,unstable:true}},
+
+{ id:'g1', n:'G1', title:'Lecture directe', part:{title:'Partie 2 · Lecture de réponses indicielles', intro:"Déterminer K et τ à partir d'une courbe mesurée. Déplace le curseur sur le graphique (souris ou doigt) pour lire les coordonnées, comme avec les curseurs d'un oscilloscope."},
+  body:`<p>On applique un échelon unitaire ${I('u')}(${I('t')}) = 1 à l'entrée d'un système du premier ordre. On relève la sortie ${yt} :</p>`,
+  graph:{K:3,tau:2,E:1,tmax:12,tMajor:2,ymax:3.5,yMajor:0.5,tUnit:'s',yUnit:''},
+  q:`Détermine le gain statique ${I('K')} et la constante de temps ${I('τ')}.`,
+  fields:[{key:'K',label:'K =',ans:3,tol:0.03},{key:'tau',label:'τ =',unit:'s',ans:2,tol:0.05}],
+  mistakes:[{when:{tau:6},msg:"6 s correspond au temps de réponse à 5 % (3τ), pas à τ."},
+            {when:{tau:1.39},msg:"Tu as lu le temps à 50 %. La constante de temps correspond à 63 % de la valeur finale."}],
+  hints:["K = y(∞) / E. Ici E = 1, donc K se lit directement sur l'asymptote.","À t = τ, la sortie vaut 63 % de sa valeur finale : cherche l'instant où y = 0,63 × 3 ≈ 1,9."],
+  sol:[['Valeur finale',`${I('y')}(∞) = 3`],['Gain',`${I('K')} = ${fr(I('y')+'(∞)',I('E'))} = ${fr('3','1')} = 3`],['63 %',`0,63 × 3 = 1,89 atteint à ${I('t')} = 2 s`],['Résultat',`${I('K')} = 3, ${I('τ')} = 2 s`]]},
+
+{ id:'g2', n:'G2', title:'Échelon d\'amplitude E',
+  body:`<p>On applique cette fois un échelon de tension d'amplitude ${I('E')} = 5 V (en pointillés). La sortie ${yt} est tracée en trait plein.</p>`,
+  graph:{K:2,tau:0.4,E:5,tmax:2.4,tMajor:0.4,ymax:11,yMajor:2,tUnit:'s',yUnit:'V',showU:true},
+  q:`Détermine ${I('K')} et ${I('τ')}.`,
+  fields:[{key:'K',label:'K =',ans:2,tol:0.03},{key:'tau',label:'τ =',unit:'s',ans:0.4,tol:0.05}],
+  mistakes:[{when:{K:10},msg:"10 V est la valeur finale de la sortie. Le gain est le rapport y(∞) / E."},
+            {when:{K:0.5},msg:"Rapport inversé : K = y(∞) / E, pas E / y(∞)."},
+            {when:{tau:1.2},msg:"1,2 s correspond à 3τ (temps de réponse à 5 %)."},
+            {when:{tau:0.28},msg:"Tu as lu le temps à 50 %. Il faut 63 % de la valeur finale."}],
+  hints:["Le gain statique est un rapport sortie / entrée en régime permanent : K = y(∞) / E.","63 % de 10 V = 6,3 V. Lis l'instant correspondant."],
+  sol:[['Gain',`${I('K')} = ${fr('10 V','5 V')} = 2`],['63 %',`0,63 × 10 = 6,3 V atteint à ${I('t')} = 0,4 s`],['Résultat',`${I('K')} = 2, ${I('τ')} = 0,4 s`]],
+  note:"Le gain K est sans unité ici car entrée et sortie sont toutes deux des tensions."},
+
+{ id:'g3', n:'G3', title:'Méthode de la tangente',
+  body:`<p>Échelon d'entrée ${I('E')} = 2. On a tracé en orange la tangente à la courbe à l'origine (question 6 du TD).</p>`,
+  graph:{K:0.8,tau:3,E:2,tmax:15,tMajor:3,ymax:2.2,yMajor:0.4,tUnit:'s',yUnit:'',tangent:true},
+  q:`Utilise la tangente pour déterminer ${I('τ')}, puis donne ${I('K')}.`,
+  fields:[{key:'K',label:'K =',ans:0.8,tol:0.03},{key:'tau',label:'τ =',unit:'s',ans:3,tol:0.05}],
+  mistakes:[{when:{K:1.6},msg:"1,6 est la valeur finale. Divise par l'amplitude de l'échelon E = 2."},
+            {when:{tau:9},msg:"9 s correspond à 3τ. La tangente, elle, coupe l'asymptote à t = τ."}],
+  hints:["La tangente à l'origine coupe l'asymptote horizontale y = y(∞) à l'instant t = τ.","Repère où la droite orange croise la valeur finale 1,6."],
+  sol:[['Asymptote',`${I('y')}(∞) = 1,6 donc ${I('K')} = 1,6 / 2 = 0,8`],['Tangente',`elle coupe ${I('y')} = 1,6 en ${I('t')} = 3 s`],['Résultat',`${I('K')} = 0,8, ${I('τ')} = 3 s`]],
+  note:"La tangente à l'origine a pour pente K·E/τ : elle atteint la valeur finale K·E exactement après une durée τ."},
+
+{ id:'g4', n:'G4', title:'Temps de réponse à 5 %',
+  body:`<p>Échelon d'entrée ${I('E')} = 2. La bande grisée représente la zone à ±5 % autour de la valeur finale.</p>`,
+  graph:{K:1.5,tau:0.8,E:2,tmax:5,tMajor:0.5,ymax:3.5,yMajor:0.5,tUnit:'s',yUnit:'',band:true},
+  q:`Lis le temps de réponse à 5 % ${I('t')}<sub>r</sub>, puis déduis-en ${I('τ')}. Donne aussi ${I('K')}.`,
+  fields:[{key:'tr',label:'tᵣ =',unit:'s',ans:2.4,tol:0.05},{key:'tau',label:'τ =',unit:'s',ans:0.8,tol:0.05},{key:'K',label:'K =',ans:1.5,tol:0.03}],
+  mistakes:[{when:{tau:2.4},msg:"2,4 s est le temps de réponse tᵣ. Pour un premier ordre, tᵣ = 3τ."},
+            {when:{tr:0.8},msg:"0,8 s est la constante de temps. tᵣ est l'instant où la courbe entre définitivement dans la bande grisée."},
+            {when:{K:3},msg:"3 est la valeur finale. Divise par E = 2."}],
+  hints:["tᵣ est l'instant où la courbe entre dans la bande à ±5 % pour ne plus en sortir.","Pour un premier ordre, tᵣ = 3τ, donc τ = tᵣ / 3."],
+  sol:[['Bande',`[0,95 × 3 ; 1,05 × 3] = [2,85 ; 3,15]`],['tᵣ',`la courbe atteint 2,85 à ${I('t')} = 2,4 s`],['τ',`${I('τ')} = ${fr(I('t')+'<sub>r</sub>','3')} = 0,8 s`],['Gain',`${I('K')} = 3 / 2 = 1,5`]],
+  note:"Cette méthode est utile quand le début de la courbe est bruité : la fin de la réponse est souvent plus facile à lire."},
+
+{ id:'g5', n:'G5', title:'Autour d\'un point de fonctionnement',
+  body:`<p>Le système fonctionne en régime établi avec ${I('u')} = 2 et ${I('y')} = 5. À ${I('t')} = 1 s, on fait passer ${I('u')} de 2 à 5 (pointillés).</p>`,
+  graph:{K:2,tau:1.5,E:3,u0:2,y0:5,t0:1,tmax:9,tMajor:1,ymax:12,yMajor:2,tUnit:'s',yUnit:'',showU:true},
+  q:`Détermine ${I('K')} et ${I('τ')} en raisonnant sur les variations.`,
+  fields:[{key:'K',label:'K =',ans:2,tol:0.03},{key:'tau',label:'τ =',unit:'s',ans:1.5,tol:0.05}],
+  mistakes:[{when:{K:2.2},msg:"Tu as fait 11 / 5 avec les valeurs absolues. Le gain se calcule sur les variations : Δy / Δu."},
+            {when:{tau:2.5},msg:"2,5 s est lu depuis t = 0. La constante de temps se mesure à partir de l'instant de l'échelon (t = 1 s)."},
+            {when:{tau:0.58},msg:"Les 63 % portent sur la variation : y = 5 + 0,63 × 6, pas 0,63 × 11."},
+            {when:{tau:1.58},msg:"Les 63 % portent sur la variation : y = 5 + 0,63 × 6, pas 0,63 × 11."}],
+  hints:["Δu = 5 − 2 = 3 et Δy = y(∞) − 5. Le gain vaut K = Δy / Δu.","Le point à 63 % est y = 5 + 0,63 × Δy. Mesure le temps à partir de t = 1 s."],
+  sol:[['Variations',`Δ${I('u')} = 3, Δ${I('y')} = 11 − 5 = 6`],['Gain',`${I('K')} = ${fr('Δ'+I('y'),'Δ'+I('u'))} = ${fr('6','3')} = 2`],['63 %',`${I('y')} = 5 + 0,63 × 6 = 8,8 atteint à ${I('t')} = 2,5 s`],['τ',`${I('τ')} = 2,5 − 1 = 1,5 s`]],
+  note:"En pratique, un système est rarement au repos au départ. On raisonne toujours sur les écarts autour du point de fonctionnement."},
+
+{ id:'g6', n:'G6', title:'Attention à l\'échelle',
+  body:`<p>Relevé à l'oscilloscope d'un filtre RC chargé par un pont diviseur. Échelon d'entrée ${I('E')} = 10 V. L'axe des temps est en millisecondes.</p>`,
+  graph:{K:0.5,tau:22,E:10,tmax:120,tMajor:20,ymax:11,yMajor:2,tUnit:'ms',yUnit:'V',showU:true},
+  q:`Donne ${I('K')} et ${I('τ')} en millisecondes.`,
+  fields:[{key:'K',label:'K =',ans:0.5,tol:0.03},{key:'tau',label:'τ =',unit:'ms',ans:22,tol:0.05}],
+  mistakes:[{when:{tau:0.022},msg:"La valeur est juste, mais la case attend des millisecondes."},
+            {when:{tau:66},msg:"66 ms correspond à 3τ."},
+            {when:{K:5},msg:"5 V est la valeur finale. Divise par E = 10 V."},
+            {when:{K:2},msg:"Rapport inversé : K = y(∞) / E."}],
+  hints:["y(∞) = 5 V et E = 10 V.","0,63 × 5 = 3,15 V : lis l'instant correspondant, en ms."],
+  sol:[['Gain',`${I('K')} = 5 / 10 = 0,5`],['63 %',`0,63 × 5 = 3,15 V atteint à ${I('t')} = 22 ms`],['Résultat',`${I('K')} = 0,5, ${I('τ')} = 22 ms = 0,022 s`]]}
+];
+
+const KEY='au3-obj1-v2';
+let state={};
+try{ state=JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ state={}; }
+const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} };
+const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const parse=s=>{ s=String(s).trim().replace(/\s/g,'').replace(/,/g,'.').replace(/−/g,'-');
+  if(!s) return NaN;
+  if(s.includes('/')){ const [a,b]=s.split('/'); return Number(a)/Number(b); }
+  return Number(s); };
+const near=(a,b,tol=0.01)=>Math.abs(a-b)<=1e-9+tol*Math.abs(b);
+const fmt=(n,d=3)=>Number(n).toLocaleString('fr-FR',{maximumFractionDigits:d});
+const st=ex=>state[ex.id]=state[ex.id]||{};
+const passed=ex=>!!(state[ex.id]&&state[ex.id].passed);
+const firstOpen=()=>{ const i=EX.findIndex(ex=>!passed(ex)); return i<0?EX.length:i; };
+
+function fieldHTML(ex,f){
+  const id=`${ex.id}-${f.key}`;
+  const lab=`<label for="${id}" class="${f.plain?'plain':''}">${f.label}</label>`;
+  if(f.type==='select') return `<div class="field">${lab}<select id="${id}">${f.opts.map(o=>`<option>${o}</option>`).join('')}</select></div>`;
+  return `<div class="field">${lab}<input id="${id}" inputmode="decimal" autocomplete="off" spellcheck="false">${f.unit?`<span class="unit">${f.unit}</span>`:''}</div>`;
+}
+
+function render(){
+  const list=document.getElementById('list');
+  list.innerHTML=EX.map(ex=>{
+    const inputs = ex.fill
+      ? `<div class="fill-eq"><input id="${ex.id}-a" inputmode="decimal" aria-label="coefficient de ẏ" autocomplete="off"> <span><i>ẏ</i>(<i>t</i>) + <i>y</i>(<i>t</i>) =</span> <input id="${ex.id}-c" inputmode="decimal" aria-label="coefficient de u" autocomplete="off"> <span><i>u</i>(<i>t</i>)</span></div>`
+      : `<div class="fields">${ex.fields.map(f=>fieldHTML(ex,f)).join('')}</div>`;
+    const part = ex.part ? `<div class="part" id="${ex.id}-part"><h2>${ex.part.title}</h2><p>${ex.part.intro}</p></div>` : '';
+    const graph = ex.graph ? `<div class="graph"><div id="${ex.id}-graph"></div><div class="readout" id="${ex.id}-read">Curseur : survole ou touche le graphique.</div></div>${ex.q?`<p class="q">${ex.q}</p>`:''}` : '';
+    return `${part}<section class="ex" id="${ex.id}">
+      <div class="ex-head"><span class="num">Ex. ${ex.n}</span><h2>${ex.title}</h2><span class="state" id="${ex.id}-state"></span></div>
+      ${ex.body}
+      ${graph}
+      ${inputs}
+      <div class="actions">
+        <button class="primary" type="button" data-act="check" data-ex="${ex.id}">Vérifier</button>
+        <button type="button" data-act="hint" data-ex="${ex.id}">Indice (${ex.hints.length})</button>
+        <button type="button" data-act="sol" data-ex="${ex.id}">Voir la correction</button>
+      </div>
+      <div class="feedback" id="${ex.id}-fb" hidden></div>
+      <div class="hints" id="${ex.id}-hints"></div>
+      <div class="plotbox" id="${ex.id}-plot" hidden></div>
+      <div class="solution" id="${ex.id}-sol" hidden>
+        <h3>Correction</h3>
+        ${ex.sol.map(([k,v])=>`<div class="step"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
+        ${ex.note?`<p class="note">${ex.note}</p>`:''}
+      </div>
+    </section>`;}).join('')
+    + `<div class="next-lock" id="lockmsg">L'exercice suivant se débloquera quand celui-ci sera juste.</div>
+       <div class="finish" id="finish" hidden><h2>Objectif 1 atteint</h2><p>Tu sais passer d'une équation différentielle à F(p) = K/(1+τp) et lire K et τ sur une réponse indicielle. Prochaine étape : les systèmes du deuxième ordre.</p></div>`;
+  EX.forEach(ex=>{ const s=state[ex.id]||{};
+    if(ex.graph) drawGraph(ex);
+    if(s.passed){ restore(ex); showPlot(ex); }
+    if(s.hints) for(let i=0;i<s.hints;i++) addHint(ex,i);
+    if(s.sol) document.getElementById(ex.id+'-sol').hidden=false; });
+  refresh();
+}
+
+function restore(ex){
+  const s=state[ex.id]; if(!s||!s.vals) return;
+  ex.fields.forEach(f=>{ const el=document.getElementById(`${ex.id}-${f.key}`); if(el&&s.vals[f.key]!=null){ el.value=s.vals[f.key]; el.classList.add('ok'); } });
+  const fb=document.getElementById(ex.id+'-fb'); fb.hidden=false; fb.className='feedback ok'; fb.textContent='Exercice validé.';
+}
+
+function refresh(){
+  const open=firstOpen();
+  EX.forEach((ex,i)=>{
+    const vis=i<=open;
+    document.getElementById(ex.id).hidden=!vis;
+    const p=document.getElementById(ex.id+'-part'); if(p) p.hidden=!vis;
+  });
+  document.getElementById('lockmsg').hidden = open>=EX.length-1;
+  document.getElementById('finish').hidden = open<EX.length;
+  const chips=document.getElementById('chips');
+  chips.innerHTML=EX.map((ex,i)=>{ const s=state[ex.id]||{};
+    if(i>open) return `<span class="chip locked" title="Verrouillé" aria-disabled="true">${ex.n}</span>`;
+    const cls = s.passed ? (s.seen?'seen':'done') : '';
+    return `<a class="chip ${cls}" href="#${ex.id}" title="${ex.title}">${ex.n}</a>`;}).join('');
+  EX.forEach(ex=>{ const s=state[ex.id]||{}; const el=document.getElementById(ex.id+'-state');
+    const cls = s.passed ? (s.seen?'seen':'done') : (s.seen?'seen':'');
+    el.className='state '+cls;
+    el.textContent = s.passed ? (s.seen?'✓ validé après correction':'✓ réussi') : (s.seen?'correction consultée':''); });
+  const done=EX.filter(passed).length;
+  document.getElementById('score').textContent=`${done} / ${EX.length} validés`;
+}
+
+function addHint(ex,i){
+  const box=document.getElementById(ex.id+'-hints');
+  if(box.children.length>i) return;
+  const d=document.createElement('div'); d.className='hint';
+  d.innerHTML=`<b>Indice ${i+1}</b>${ex.hints[i]}`; box.appendChild(d);
+}
+
+function check(ex){
+  const vals={}, raw={}, ok={};
+  const mtol = ex.graph?0.05:0.01;
+  ex.fields.forEach(f=>{
+    const el=document.getElementById(`${ex.id}-${f.key}`);
+    raw[f.key]=el.value;
+    if(f.type==='select'){ vals[f.key]=el.value; ok[f.key]=el.value===f.ans; }
+    else { vals[f.key]=parse(el.value); ok[f.key]=!isNaN(vals[f.key])&&near(vals[f.key],f.ans,f.tol||0.01); }
+    el.classList.remove('ok','ko');
+    if((f.type==='select'&&el.value!=='—')||(f.type!=='select'&&el.value.trim()!=='')) el.classList.add(ok[f.key]?'ok':'ko');
+  });
+  const fb=document.getElementById(ex.id+'-fb'); fb.hidden=false;
+  const s=st(ex);
+  if(Object.values(ok).every(Boolean)){
+    const first=!s.passed;
+    s.passed=true; s.vals=raw;
+    const isLast = EX.indexOf(ex)===EX.length-1;
+    fb.className='feedback ok';
+    fb.textContent = (s.seen ? "Correct, après consultation de la correction. " : "Correct. ") + (isLast ? "Tous les exercices sont validés." : "L'exercice suivant est débloqué plus bas.");
+    showPlot(ex);
+    save(); refresh();
+    if(first && !isLast){ const nx=EX[EX.indexOf(ex)+1]; const target=document.getElementById(nx.part?nx.id+'-part':nx.id);
+      setTimeout(()=>target.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'}),450); }
+    return;
+  }
+  const empty=ex.fields.some(f=>{const el=document.getElementById(`${ex.id}-${f.key}`); return f.type==='select'?el.value==='—':el.value.trim()==='';});
+  let msg=null;
+  for(const m of ex.mistakes){
+    if(Object.entries(m.when).every(([k,v])=> typeof v==='string' ? vals[k]===v : (!isNaN(vals[k])&&near(vals[k],v,mtol)))){ msg=m.msg; break; }
+  }
+  fb.className='feedback ko';
+  fb.textContent = msg || (empty ? "Complète toutes les cases avant de vérifier." : "Pas encore. Les cases en rouge sont fausses. Reprends la méthode ou demande un indice.");
+  s.tries=(s.tries||0)+1;
+  save(); refresh();
+}
+
+function drawGraph(ex, annotate){
+  const g=ex.graph, box=document.getElementById(ex.id+'-graph');
+  const u0=g.u0||0, y0=g.y0||0, t0=g.t0||0, E=g.E, dy=g.K*E, yInf=y0+dy;
+  const yf=t=> t<t0 ? y0 : y0+dy*(1-Math.exp(-(t-t0)/g.tau));
+  const W=600,H=310,m={l:52,r:18,t:16,b:40}, w=W-m.l-m.r, h=H-m.t-m.b;
+  const X=t=>m.l+t/g.tmax*w, Y=v=>m.t+h-v/g.ymax*h;
+  let s='';
+  // grille fine puis principale
+  const tm=g.tMajor/5, ym=g.yMajor/5;
+  for(let t=0;t<=g.tmax+1e-9;t+=tm) s+=`<line x1="${X(t).toFixed(1)}" y1="${m.t}" x2="${X(t).toFixed(1)}" y2="${m.t+h}" stroke="var(--grid)" stroke-width="0.6"/>`;
+  for(let v=0;v<=g.ymax+1e-9;v+=ym) s+=`<line x1="${m.l}" y1="${Y(v).toFixed(1)}" x2="${m.l+w}" y2="${Y(v).toFixed(1)}" stroke="var(--grid)" stroke-width="0.6"/>`;
+  for(let t=0;t<=g.tmax+1e-9;t+=g.tMajor) s+=`<line x1="${X(t).toFixed(1)}" y1="${m.t}" x2="${X(t).toFixed(1)}" y2="${m.t+h}" stroke="var(--line)" stroke-width="1"/><text x="${X(t).toFixed(1)}" y="${H-20}" text-anchor="middle">${fmt(t)}</text>`;
+  for(let v=0;v<=g.ymax+1e-9;v+=g.yMajor) s+=`<line x1="${m.l}" y1="${Y(v).toFixed(1)}" x2="${m.l+w}" y2="${Y(v).toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text x="${m.l-8}" y="${(Y(v)+4).toFixed(1)}" text-anchor="end">${fmt(v)}</text>`;
+  if(g.band) s+=`<rect x="${m.l}" y="${Y(yInf*1.05).toFixed(1)}" width="${w}" height="${(Y(yInf*0.95)-Y(yInf*1.05)).toFixed(1)}" fill="var(--muted)" opacity="0.18"/>`;
+  s+=`<line x1="${m.l}" y1="${m.t+h}" x2="${m.l+w}" y2="${m.t+h}" stroke="var(--ink)"/><line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${m.t+h}" stroke="var(--ink)"/>`;
+  if(g.showU){ const u1=u0+E; s+=`<path d="M${X(0)} ${Y(u0)} H${X(t0)} V${Y(u1)} H${X(g.tmax)}" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="6 4"/><text x="${X(g.tmax)-4}" y="${Y(u1)-6}" text-anchor="end" fill="var(--muted)">u(t)</text>`; }
+  if(g.tangent||annotate){ const t1=t0+g.tau*Math.min(1.35, (g.ymax-y0)/dy*0.98);
+    s+=`<line x1="${X(t0)}" y1="${Y(y0)}" x2="${X(t1)}" y2="${Y(y0+dy*(t1-t0)/g.tau)}" stroke="var(--warn)" stroke-width="1.8"/>`; }
+  let d=''; for(let i=0;i<=240;i++){ const t=i/240*g.tmax; d+=(i?'L':'M')+X(t).toFixed(1)+' '+Y(yf(t)).toFixed(1); }
+  s+=`<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2.6"/>`;
+  s+=`<text x="${X(g.tmax)-4}" y="${Y(yInf)+18}" text-anchor="end" fill="var(--accent)">y(t)</text>`;
+  if(annotate){ const tt=t0+g.tau, y63=y0+0.632*dy;
+    s+=`<line x1="${m.l}" y1="${Y(yInf)}" x2="${m.l+w}" y2="${Y(yInf)}" stroke="var(--ink)" stroke-dasharray="5 4" opacity=".7"/>`;
+    s+=`<path d="M${m.l} ${Y(y63)} H${X(tt)} V${m.t+h}" fill="none" stroke="var(--ink)" stroke-dasharray="3 3" opacity=".7"/>`;
+    s+=`<circle cx="${X(tt)}" cy="${Y(y63)}" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;
+    s+=`<text x="${X(tt)+9}" y="${Y(y63)+18}" fill="var(--ink)">t = ${fmt(tt)} ${g.tUnit} · 63 %</text>`; }
+  s+=`<text x="${m.l+w}" y="${H-4}" text-anchor="end">t (${g.tUnit})</text><text x="${m.l+4}" y="${m.t+11}">y${g.yUnit?' ('+g.yUnit+')':''}</text>`;
+  s+=`<g id="${ex.id}-cur" style="display:none"><line class="cv" stroke="var(--ko)" stroke-width="1"/><line class="ch" stroke="var(--ko)" stroke-width="1"/><circle r="3.5" fill="var(--ko)"/></g>`;
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Réponse indicielle mesurée" font-family="IBM Plex Mono, monospace" font-size="11.5" fill="var(--muted)">${s}</svg>`;
+  const svg=box.querySelector('svg'), cur=svg.querySelector(`#${ex.id}-cur`), rd=document.getElementById(ex.id+'-read');
+  const dec = g.tMajor<1 ? 3 : g.tMajor<5 ? 2 : 1;
+  const move=e=>{
+    const pt=svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+    const q=pt.matrixTransform(svg.getScreenCTM().inverse());
+    const px=Math.min(Math.max(q.x,m.l),m.l+w), py=Math.min(Math.max(q.y,m.t),m.t+h);
+    const t=(px-m.l)/w*g.tmax, v=(m.t+h-py)/h*g.ymax;
+    cur.style.display='';
+    const cv=cur.querySelector('.cv'), ch=cur.querySelector('.ch'), c=cur.querySelector('circle');
+    cv.setAttribute('x1',px); cv.setAttribute('x2',px); cv.setAttribute('y1',m.t); cv.setAttribute('y2',m.t+h);
+    ch.setAttribute('x1',m.l); ch.setAttribute('x2',m.l+w); ch.setAttribute('y1',py); ch.setAttribute('y2',py);
+    c.setAttribute('cx',px); c.setAttribute('cy',py);
+    rd.innerHTML=`Curseur : <b>t = ${fmt(t,dec)} ${g.tUnit}</b> · <b>y = ${fmt(v,2)}${g.yUnit?' '+g.yUnit:''}</b>`;
+  };
+  svg.addEventListener('pointermove',move); svg.addEventListener('pointerdown',move);
+}
+
+
+function showPlot(ex){
+  if(ex.graph){ drawGraph(ex,true); return; }
+  if(!ex.plot) return;
+  const box=document.getElementById(ex.id+'-plot'); box.hidden=false;
+  if(box.dataset.drawn) return; box.dataset.drawn='1';
+  const {K,tau,unstable}=ex.plot;
+  const W=560,H=230,m={l:52,r:18,t:16,b:36}, w=W-m.l-m.r, h=H-m.t-m.b;
+  const tmax=unstable?1.5:5*tau;
+  const yf=t=>K*(1-Math.exp(-t/tau));
+  const ymax=unstable?yf(tmax)*1.05:K*1.12, ymin=0;
+  const X=t=>m.l+t/tmax*w, Y=v=>m.t+h-(v-ymin)/(ymax-ymin)*h;
+  let d=''; for(let i=0;i<=160;i++){ const t=i/160*tmax; d+=(i?'L':'M')+X(t).toFixed(1)+' '+Y(yf(t)).toFixed(1); }
+  const xt=unstable?[0,0.5,1,1.5]:[0,1,2,3,4,5].map(k=>k*tau);
+  const yt=unstable?[0,1,2,3,4]:[0,0.632*K,K];
+  let g='';
+  xt.forEach(t=>{ g+=`<line x1="${X(t)}" y1="${m.t}" x2="${X(t)}" y2="${m.t+h}" stroke="var(--grid)"/><text x="${X(t)}" y="${H-14}" text-anchor="middle">${fmt(t)}</text>`; });
+  yt.forEach(v=>{ g+=`<line x1="${m.l}" y1="${Y(v)}" x2="${m.l+w}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end">${fmt(v)}</text>`; });
+  let extra='';
+  if(!unstable){
+    extra+=`<line x1="${m.l}" y1="${Y(K)}" x2="${m.l+w}" y2="${Y(K)}" stroke="var(--muted)" stroke-dasharray="5 4"/>`;
+    extra+=`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(tau)}" y2="${Y(K)}" stroke="var(--warn)" stroke-width="1.4"/>`;
+    extra+=`<line x1="${X(tau)}" y1="${Y(0)}" x2="${X(tau)}" y2="${Y(0.632*K)}" stroke="var(--muted)" stroke-dasharray="3 3"/>`;
+    extra+=`<circle cx="${X(tau)}" cy="${Y(0.632*K)}" r="4" fill="var(--accent)"/>`;
+    extra+=`<text x="${X(tau)+8}" y="${Y(0.632*K)+16}" fill="var(--ink)">63 % de K à t = τ</text>`;
+    extra+=`<text x="${X(tau)+6}" y="${Y(K)-6}" fill="var(--warn)">tangente à l'origine</text>`;
+  }
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Réponse indicielle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--muted)">
+    ${g}
+    <line x1="${m.l}" y1="${m.t+h}" x2="${m.l+w}" y2="${m.t+h}" stroke="var(--ink)"/>
+    <line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${m.t+h}" stroke="var(--ink)"/>
+    ${extra}
+    <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2.4"/>
+    <text x="${m.l+w}" y="${H-2}" text-anchor="end">t (s)</text>
+    <text x="${m.l+4}" y="${m.t+10}">y(t)</text>
+  </svg>
+  <div class="cap">${unstable
+    ? "Réponse à un échelon unitaire : y(t) = 0,25 (e<sup>2t</sup> − 1). La sortie diverge, aucune valeur finale n'est atteinte."
+    : `Réponse à un échelon unitaire : y(t) = K (1 − e<sup>−t/τ</sup>) avec K = ${fmt(K)} et τ = ${fmt(tau)} s. La courbe atteint 63 % de K à t = τ ; la tangente à l'origine coupe l'asymptote à t = τ.`}</div>`;
+}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-act]'); if(!b) return;
+  const ex=EX.find(x=>x.id===b.dataset.ex); const s=state[ex.id]=state[ex.id]||{};
+  if(b.dataset.act==='check') check(ex);
+  if(b.dataset.act==='hint'){ const i=s.hints||0; if(i<ex.hints.length){ addHint(ex,i); s.hints=i+1; } save(); }
+  if(b.dataset.act==='sol'){ const el=document.getElementById(ex.id+'-sol'); el.hidden=!el.hidden; s.sol=!el.hidden;
+    if(!el.hidden && !s.passed) s.seen=true; save(); refresh(); }
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && e.target.matches('.ex input')){ const ex=EX.find(x=>e.target.id.startsWith(x.id+'-')); if(ex) check(ex); }
+});
+document.getElementById('reset').addEventListener('click',()=>{ state={}; save(); render(); });
+render();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
