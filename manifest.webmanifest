@@ -1,7 +1,7 @@
 {
-  "name": "Atelier premier ordre (AU3)",
-  "short_name": "Premier ordre",
-  "description": "De l'équation différentielle à F(p) = K/(1+τp) : exercices interactifs.",
+  "name": "Atelier AU3",
+  "short_name": "Atelier AU3",
+  "description": "Exercices interactifs d'automatique : du premier ordre à la boucle de régulation.",
   "lang": "fr",
   "start_url": "./index.html",
   "scope": "./",
