@@ -1,4 +1,4 @@
-const CACHE = 'au3-atelier-v13';
+const CACHE = 'au3-atelier-v14';
 const FILES = ['./', './index.html', './config.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

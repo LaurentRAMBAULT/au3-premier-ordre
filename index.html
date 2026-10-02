@@ -187,6 +187,10 @@ button:disabled{opacity:.5;cursor:default}
 .finish{display:flex;flex-direction:column;gap:8px}
 .finish p{margin:0}
 .finish button{align-self:flex-start}
+.numwrap{display:inline-flex;align-items:stretch}
+.numwrap input{border-top-right-radius:0!important;border-bottom-right-radius:0!important}
+.pm{font:600 17px var(--mono);padding:0 11px;border:1.5px solid var(--line);border-left:none;border-radius:0 6px 6px 0;background:var(--surface);color:var(--ink);min-width:40px;touch-action:manipulation}
+.pm:active{background:var(--accent-soft)}
 .chip.locked{opacity:.45;cursor:not-allowed;border-style:dashed}
 .part{display:flex;flex-direction:column;gap:4px;padding-top:10px}
 .part h2{font-family:var(--cond);font-weight:600;font-size:24px;margin:0}
@@ -1584,7 +1588,7 @@ function afterLogin(){ document.getElementById('login').hidden=true; const ub=do
   while(cur>0&&!accessible(cur)) cur--; render(); setSync(); }
 function endPass(i){ const o=OBJ[i], os=objState(o.id), L=getList(i);
   const seen=L.filter(ex=>(state[ex.id]||{}).seen).length, good=L.filter(ex=>passed(ex)&&!(state[ex.id]||{}).seen).length, score=Math.round(100*good/L.length);
-  const validated = seen===0 || (os.pass>=3 && score>80);
+  const validated = seen===0 || (os.pass>=2 && score>80);
   os.history.push({pass:os.pass,score,seen,good,total:L.length,validated,end:Date.now()});
   if(validated){ os.validated=true; os.pending=false; } else os.pending=true;
   enqueue({t:'pass',score,seen,validated}); }
@@ -1595,13 +1599,13 @@ function fieldHTML(ex,f){
   const id=`${ex.id}-${f.key}`;
   const lab=`<label for="${id}" class="${f.plain?'plain':''}">${f.label}</label>`;
   if(f.type==='select') return `<div class="field">${lab}<select id="${id}">${f.opts.map(o=>`<option>${o}</option>`).join('')}</select></div>`;
-  return `<div class="field">${lab}<input id="${id}" inputmode="decimal" autocomplete="off" spellcheck="false">${f.unit?`<span class="unit">${f.unit}</span>`:''}</div>`;
+  return `<div class="field">${lab}<span class="numwrap"><input id="${id}" inputmode="decimal" autocomplete="off" spellcheck="false"><button type="button" class="pm" data-pm="${id}" aria-label="Changer le signe" title="Changer le signe">±</button></span>${f.unit?`<span class="unit">${f.unit}</span>`:''}</div>`;
 }
 
 function render(){
   document.getElementById('tabs').innerHTML=OBJ.map((o,i)=>`<button class="tab${accessible(i)?'':' locked'}" role="tab" type="button" data-obj="${i}" aria-selected="${i===cur}"${accessible(i)?'':' aria-disabled="true"'}><span class="t1"></span><span class="t2">${o.name}</span></button>`).join('');
   const os=objState(OBJ[cur].id), hist=os.history.map(h=>`passage ${h.pass} : ${h.score} %${h.seen?` (${h.seen} correction${h.seen>1?'s':''} vue${h.seen>1?'s':''})`:''}`).join(' · ');
-  document.getElementById('objhead').innerHTML=OBJ[cur].head+(os.validated?'':`<div class="rules"><b>Passage n° ${os.pass}.</b> Si tu ouvres une correction, cet objectif te sera reproposé${OBJ[cur].gen?' avec de nouvelles valeurs':''}. À partir du 3e passage, un score supérieur à 80 % suffit pour passer à l'objectif suivant.${hist?`<br>Historique : ${hist}.`:''}</div>`);
+  document.getElementById('objhead').innerHTML=OBJ[cur].head+(os.validated?'':`<div class="rules"><b>Passage n° ${os.pass}.</b> Si tu ouvres une correction, cet objectif te sera reproposé${OBJ[cur].gen?' avec de nouvelles valeurs':''}. À partir du 2e passage, un score supérieur à 80 % suffit pour passer à l'objectif suivant.${hist?`<br>Historique : ${hist}.`:''}</div>`);
   const list=document.getElementById('list');
   list.innerHTML=LIST().map(ex=>{
     const inputs = ex.fill
@@ -1653,7 +1657,7 @@ function refresh(){
     el.textContent = !accessible(i) ? `${OBJ[i].tag} · verrouillé` : os.validated ? `${OBJ[i].tag} · validé` : `${OBJ[i].tag} · passage ${os.pass} · ${L.filter(passed).length}/${L.length}`; });
   const fin=document.getElementById('finish'), os=objState(OBJ[cur].id), last=os.history[os.history.length-1];
   if(os.validated){ fin.className='finish'; fin.innerHTML=`<h2>${OBJ[cur].tag} validé</h2><p>${OBJ[cur].finish}</p>${last?`<p>Score du dernier passage : ${last.score} %.</p>`:''}${os.parEnseignant?'<p>Objectif débloqué par ton enseignant.</p>':''}${cur<OBJ.length-1?'<button type="button" class="primary" data-next="1">Aller à l\'objectif suivant</button>':''}`; }
-  else if(os.pending&&last){ fin.className='finish retry'; fin.innerHTML=`<h2>Passage ${last.pass} terminé</h2><p>Score : ${last.score} % (${last.good} exercice${last.good>1?'s':''} sur ${last.total} réussis sans correction). Correction consultée sur ${last.seen} exercice${last.seen>1?'s':''}.</p><p>${last.pass<3?'Pour valider cet objectif, refais-le sans ouvrir de correction. À partir du 3e passage, un score supérieur à 80 % suffit.':'Il faut un score supérieur à 80 %, ou aucun recours à la correction, pour valider cet objectif.'}</p><button type="button" class="primary" data-newpass="1">Commencer le passage ${last.pass+1}${OBJ[cur].gen?' avec de nouvelles valeurs':''}</button>`; }
+  else if(os.pending&&last){ fin.className='finish retry'; fin.innerHTML=`<h2>Passage ${last.pass} terminé</h2><p>Score : ${last.score} % (${last.good} exercice${last.good>1?'s':''} sur ${last.total} réussis sans correction). Correction consultée sur ${last.seen} exercice${last.seen>1?'s':''}.</p><p>${last.pass<2?'Pour valider cet objectif, refais-le sans ouvrir de correction, ou obtiens plus de 80 % au prochain passage.':'Il faut un score supérieur à 80 %, ou aucun recours à la correction, pour valider cet objectif.'}</p><button type="button" class="primary" data-newpass="1">Commencer le passage ${last.pass+1}${OBJ[cur].gen?' avec de nouvelles valeurs':''}</button>`; }
   else fin.innerHTML='';
   EX.forEach((ex,i)=>{
     const vis=i<=open;
@@ -1904,6 +1908,8 @@ document.addEventListener('click',e=>{
   if(e.target.closest('[data-newpass]')) newPass(cur);
   if(e.target.closest('[data-next]') && cur<OBJ.length-1 && accessible(cur+1)){ cur++; state._obj=cur; save(); render(); window.scrollTo({top:0,behavior:reduced?'auto':'smooth'}); }
 });
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-pm]'); if(!b) return; const el=document.getElementById(b.dataset.pm); if(!el) return;
+  const v=el.value.trim(); el.value = /^[-−]/.test(v) ? v.replace(/^[-−]\s*/,'') : '−'+v; el.classList.remove('ok','ko'); el.focus(); });
 document.getElementById('login-btn').addEventListener('click',doLogin);
 document.getElementById('login-code').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 document.getElementById('ub-out').addEventListener('click',async()=>{ if(queue.length){ await flush(); if(queue.length){ setSync(); document.getElementById('ub-sync').textContent=`Envoi impossible (${queue.length} en attente) : reconnecte-toi au réseau avant de te déconnecter.`; return; } }
